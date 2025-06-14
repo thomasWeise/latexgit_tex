@@ -1,0 +1,115 @@
+%%
+%% This is file `latexgit.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% latexgit.dtx  (with options: `package')
+%% This is a generated file.
+%% 
+%% Copyright (C) 2023--2025 by Thomas Weise <tweise@email.hfuu.edu.cn>
+%% 
+%% This file may be distributed and/or modified under the conditions of the
+%% The LaTeX Project Public License (LPPL) Version 1.3c  2008-05-04.
+%% The license can be found at
+%% https://thomasweise.github.io/latexgit_tex/LICENSE.html.
+%% You can obtain the latest version of this package from
+%% http://thomasweise.github.io/latexgit_tex or
+%% http://github.com/thomasWeise/latexgit_tex.
+%% This work is author-maintained, i.e., it can only be maintained by
+%% Thomas Weise.
+\NeedsTeXFormat{LaTeX2e}[1999/12/01]%
+\ProvidesPackage{latexgit}[2025/06/15 0.9.2 gitExec with empty ID permitted]%
+%%
+%%
+%%
+%%
+%%
+%%
+\RequirePackage{filecontents}%  Allow us to create the dummy file.
+\xdef\@latexgit@dummyPath{\jobname.latexgit.dummy}%  the dummy file
+\expandafter\begin\expandafter{filecontents*}{\@latexgit@dummyPath}
+
+\end{filecontents*}
+\xdef\@latexgit@dummyUrl{https://example.com}%  the dummy URL
+\protected\gdef\@latexgit@gitFile#1#2#3#4{}%
+\protected\gdef\@latexgit@process#1#2#3#4{}%
+\protected\gdef\@latexgit@argFile#1#2#3{}%
+%%
+%% Define a query to load and post-process a file from a |git| repository.
+%% #1 is the request ID
+%% #2 is the repository URL
+%% #3 is the path to the file inside the repository
+%% #4 is a command through which the file contents should be piped
+%%%   (leave #4 empty to use the file as-is)
+\protected\gdef\gitLoad#1#2#3#4{%
+\edef\@latexgit@pA{#1}%  fully expand the request ID
+\edef\@latexgit@pB{#2}%  fully expand the repository URL
+\edef\@latexgit@pC{#3}%  fully expand the path into the repository
+\edef\@latexgit@pD{#4}%  fully expand the (optional) shell command
+\immediate\write\@mainaux{%
+\noexpand\@latexgit@gitFile{\@latexgit@pA}{\@latexgit@pB}{%
+\@latexgit@pC}{\@latexgit@pD}}%
+}%
+\newcount\@latexgit@counter%  The counter for the dummy arguments of \gitExec
+\@latexgit@counter0\relax%    We start the counter at 0.
+%%
+%% Define a query to execute a command, optionally in a |git| repository.
+%% #1 is the request ID, leave empty if you do not want to access the output
+%% #2 is the repository URL, or empty if no repository is needed
+%% #3 is the path to a directory inside the repository or empty
+%% #4 is a command to be executed
+\protected\gdef\gitExec#1#2#3#4{%
+\edef\@latexgit@pA{#1}%  the request ID
+\ifx\@latexgit@pA\empty\relax\edef\@latexgit@pA{%
+@latexgit@dummy@\the\@latexgit@counter}%
+\global\advance\@latexgit@counter by 1% step the counter for the next dummy
+\fi%
+\edef\@latexgit@pB{#2}%  fully expand the repository URL, or empty
+\edef\@latexgit@pC{#3}%  fully expand the path into the repository, or empty
+\edef\@latexgit@pD{#4}%  fully expand the (optional) shell command
+\immediate\write\@mainaux{%
+\noexpand\@latexgit@process{\@latexgit@pA}{\@latexgit@pB}{%
+\@latexgit@pC}{\@latexgit@pD}}%
+}%
+%%
+%% Define a query to allocate a file.
+%% #1 is the request ID
+%% #2 is the prefix
+%% #3 is the suffix
+\protected\gdef\gitArg#1#2#3{%
+\edef\@latexgit@pA{#1}%  the request ID
+\edef\@latexgit@pB{#2}%  fully expand the prefix
+\edef\@latexgit@pC{#3}%  fully expand the suffix
+\immediate\write\@mainaux{%
+\noexpand\@latexgit@argFile{\@latexgit@pA}{\@latexgit@pB}{%
+\@latexgit@pC}}%
+}%
+%%
+%% Conditionally execute code depending on whether the given request was
+%% already executed.
+%% #1 is the request ID
+%% #2 the code to execute if the request of the given ID has been executed.
+%% #3 the code to execute if the request of the given ID has NOT been
+%%    executed.
+\gdef\gitIf#1#2#3{%
+\expandafter\ifx\csname @latexgit@path@#1\endcsname\relax%
+\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi{#3}{#2}%
+}%
+%%
+%% Get the file path associated with the request ID.
+%% #1 is the request ID
+\gdef\gitFile#1{%
+\expandafter\ifx\csname @latexgit@path@#1\endcsname\relax%
+\@latexgit@dummyPath\else\csname @latexgit@path@#1\endcsname\fi%
+}%
+%%
+%% Get the URL associated with the request ID.
+%% #1 is the request ID
+\gdef\gitUrl#1{%
+\expandafter\ifx\csname @latexgit@url@#1\endcsname\relax%
+\@latexgit@dummyUrl\else\csname @latexgit@url@#1\endcsname\fi%
+}%
+\endinput
+%%
+%% End of file `latexgit.sty'.
